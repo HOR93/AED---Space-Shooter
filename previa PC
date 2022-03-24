@@ -1,0 +1,430 @@
+#include <iostream>
+#include <conio.h> // biblioteca para funções de controle na tela do terminal
+#include <windows.h> // coordenadas
+
+
+// Projeto Computacional
+// Henrique Oliveira da Rocha - 202066910
+// Victor Augusto Araújo dias - 211027527
+
+using namespace std;
+
+
+class cordenadas {
+	public:
+	
+	void gotoxy (int x, int y){ // posicionar as cordenadas na tela pelo windows.h
+	HANDLE jogo;
+    jogo = GetStdHandle(STD_OUTPUT_HANDLE); // tomando controle da posição de saida
+
+    COORD dwPos;
+    dwPos.X = x; // cada cordenada x e y segue onde esta o gotoxy
+    dwPos.Y = y;
+
+    SetConsoleCursorPosition(jogo, dwPos); // atributos interpretados como coordenadas
+	
+}
+
+	void ocultar_cursor(){
+
+	HANDLE jogo;
+    jogo = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_CURSOR_INFO cursor;
+    cursor.dwSize = 1; // tamanho do cursor
+    cursor.bVisible = FALSE;
+    // cursor.bVisible = false;  para nao aparecer o cursor ou true pra mostrar
+   SetConsoleCursorInfo(jogo, &cursor);
+
+   }
+
+   void limite_aresta(){
+
+    for(int i = 2; i<78; i++){
+    	gotoxy(i,3);
+		cout <<"" << char(196); // limite cima e baixo 
+    	gotoxy(i,33);
+		cout <<"" << char(196);
+	}
+	
+	for(int i = 4; i<33; i++){
+		gotoxy(2,i);
+		cout <<"" << char(179); // limite lados
+		gotoxy(77,i);
+		cout <<"" << char(179);
+	}
+	gotoxy(2,3); // 2 3
+	cout <<"" << char(218); // arestas 201
+	gotoxy(2,33);
+	cout <<"" << char(192);
+	gotoxy(77,3); 
+	cout <<"" << char(191);
+	gotoxy(77,33); 
+	cout <<"" << char(217);
+}
+	
+	
+	
+};
+
+
+class nave: public cordenadas {
+private:
+int x, y;
+int coracao;
+int combustivel;
+	
+public:
+	nave(int _x, int _y, int _coracao, int _combustivel){ // parametros
+		x = _x;
+		y = _y;
+		coracao = _coracao;
+		combustivel = _combustivel;
+	}
+	void set_x( int _x){
+        x = _x;
+	}
+	int X(){ // parametro para o hitbox
+		return x;
+	}
+	void set_y( int _y){
+        y = _y;
+	}
+	int Y(){ // parametro para o hitbox
+		return y;	
+	}
+	void set_comb( int comb){
+        combustivel = comb;
+	}
+	int comb(){
+		return combustivel;
+	}
+	
+void coracao_energia(){
+	coracao--;
+}
+
+void criando_nave();
+void excluir_nave();	
+void mover_nave();
+void criar_vida();
+void explosao_nave();		
+		
+};
+
+void nave::criando_nave(){
+	gotoxy(x,y); 
+	cout << "   " << char(245); // char para criar a nave
+	gotoxy(x, y+1); // +1 depois do y é para sinalizar que esta na parte em baixo
+	cout << "  " << char(40) << char(207) << char(41);
+	gotoxy(x, y+2); 
+	cout <<" " << char(30) << " " << char(30) << " " << char(30);
+}
+
+void nave:: excluir_nave(){ // metodo para apagar os rastros da nave
+	gotoxy(x,y);
+	cout <<"        "; // abrindo espaços para apagar
+	gotoxy(x, y+1); 
+	cout <<"        ";
+	gotoxy(x, y+2); 
+	cout <<"        ";
+}
+
+void nave::mover_nave(){
+	
+	if (kbhit()){ // kbhit do conio, função que detecta se a tecla foi pressionada
+		char tecla = getch(); // getch do windows le e retorna o caractere e nao mostra na tela
+        excluir_nave(); // metodo para apagar os rastros da nave
+		if (tecla == 75 && x > 3) x--; //    x-- significa que vai para esquerda && para o limite do cenario
+		if (tecla == 77 && x+6 < 77) x++; //x++ significa que vai para direita
+		criando_nave();
+		criar_vida();
+		
+    }
+}
+
+void nave::criar_vida(){
+	gotoxy(3, 2);
+	cout <<"||Combustivel: " << combustivel << endl; //32 em baixo
+	gotoxy(17, 1); 
+	cout <<">>>>>>>>>>>>|| STARBREAKER ||<<<<<<<<<<<<"<< endl;
+	gotoxy(62, 2); 
+	cout << "Energia:  " << endl; // inserir coraï¿½ï¿½o no topo da tela
+	gotoxy(70, 2); 
+	cout << "      ";
+	for (int i=0; i<coracao; i++){
+		gotoxy(71+i, 2); 
+		cout << "" << char(3); // char coraï¿½ï¿½o
+	}
+	
+}
+
+void nave::explosao_nave(){
+	if (coracao == 0){
+		excluir_nave();
+		gotoxy(x,y); 
+		cout <<" PERDENDO COMBUSTIVEL!";
+		gotoxy(x,y+1); 
+		cout <<"   AHHH nave! sofreu! dano!    ";
+		gotoxy(x,y+2); 
+		cout <<">> > * ## ## #";
+		Sleep(100);
+		
+		excluir_nave();
+		gotoxy(x,y); 
+		cout <<" PERDENDO COMBUSTIVEL! ";
+		gotoxy(x,y+1); 
+		cout <<"   AHHH nave! sofreu! dano!    ";
+		gotoxy(x,y+2); 
+		cout <<"              ";
+		Sleep(100);
+		excluir_nave();
+		combustivel--;
+		coracao = 3; // reseta e volta para 3 mais uma vez
+		criar_vida(); // retorna a vida 
+		criando_nave();
+	}
+}
+
+class aliens: public cordenadas { // classe para os aliens
+    private:
+	int x,y;
+	
+	public:
+		
+	aliens(int n_x, int n_y){
+		x = n_x;
+		y = n_y;
+	}
+		
+	void criar_aliens();
+	void mover_aliens();
+	void hitbox_aliens(nave &n); // passando como parametro nave N, modificando os valores
+	
+	void set_ax(int n_x){
+		x = n_x;
+	}
+	int X(){ // chamando para as cordenadas X
+		return x;
+	}
+	void set_ay(int n_y){
+		y = n_y;
+	}
+	int Y(){ // chamando para as cordenadas Y
+		return y;
+	}
+};
+
+void aliens::criar_aliens(){
+	gotoxy(x,y);
+	cout << "" << char(245);
+
+
+}
+void aliens::mover_aliens(){
+	gotoxy(x,y);
+	cout <<" ";
+
+	y++;
+	if(y>32){ // até onde vai cair
+		x = rand()%71 + 5; // aliens vai sair dentro de um limite entre direita e esquerda, e o +5 e pra evitar os aliens sair fora do padrão da tela
+		y = 4; // para ficar caindo na tela no limite cordenada 4 do terminal
+	}
+	criar_aliens();
+}
+
+void aliens::hitbox_aliens(nave &n){ // pegando o parametro e passando com n.X
+	if (x >= n.X() && x < n.X()+6 && y >= n.Y() && y<=n.Y()+2){ // X= cordenadas nave, se x for maior ou igual a X da nave, +6 para o valor dos caracteres da nave
+		n.coracao_energia();    // para tirar coração                               
+		n.excluir_nave();
+		n.criando_nave();
+		n.criar_vida();
+		x = rand()%71 + 4; // 71 + 4
+		y = 4;
+	}
+}
+
+
+
+void playy(){
+int x,y;	
+cordenadas c;
+c.gotoxy(x,y);
+c.ocultar_cursor();
+c.limite_aresta();
+
+nave n(37,30, 5, 3); // passando a localização da nave, e outras variaveis da classe nave
+n.criando_nave();
+
+aliens aliens_a(10,4), aliens_b(15,8), aliens_c(18,6),  aliens_d(13,7), aliens_e(19,3); aliens aliens_f(23,9); aliens aliens_g(21,2); // aliens
+
+
+   bool gameplay = false;
+   int pontos = 0;
+   int level = 1;
+
+   while (!gameplay){  // controlando caracteres no terminal enquanto for negada
+   
+   c.gotoxy(21,2); 
+   cout <<"||pontos: " << pontos;
+ 
+   c.gotoxy(49,2); 
+   cout <<"||level: " << level;
+   cout << endl;
+   cout << endl;
+   cout     <<"  |                              |-------------|"<< endl;
+   cout     <<"  |                           |-------------------|"<< endl;
+   cout     <<"  |                   |------------------------------------|"<< endl;
+   cout     <<"  |           |------------------------------------------------------|"<< endl;
+   cout     <<"  |      |--------------------------------------------------------------|"<< endl;
+   cout     <<"  |      |----|####|------------|####|------|####|------------|####|----|"<< endl;
+   cout     <<"  |      |----|####|------------|####|------|####|------------|####|----|"<< endl;
+   cout     <<"  |      |----|####|------------|####|------|####|------------|####|----|"<< endl;
+   cout     <<"  |          |----------------------------------------------------|"<< endl;
+   cout     <<"  |                    |------------------------------------|"<< endl;
+   cout     <<"  |                          |-------------------------|"<< endl;
+    cout << endl;
+    cout << endl;
+   cout     <<"  |         _____        _____                           __     __           "<< endl;
+   cout     <<"  |         |___|        |___|         ___    ___        ||     ()           "<< endl;
+   cout     <<"  |         |___|        |___|         |_|    |_|        ||     ()           "<< endl;
+   cout     <<"  |_________|   |________|   |_________| |____| |________||_____()___________"<< endl;
+   cout << endl;
+    cout << endl;
+   cout     <<"  |         _____                                   __        ________      "<< endl;
+   cout     <<"  |         |___|                 ___    ___        ||        ||____||      "<< endl;
+   cout     <<"  |         |___|                 |_|    |_|        ||        ||    ||      "<< endl;
+   cout     <<"  |_________|   |_________________| |____| |________||________||____||_______"<< endl;
+   
+    
+    aliens_a.mover_aliens();
+    aliens_a.hitbox_aliens(n);  // pegando os metodos e botando no menu sobre aliens
+    aliens_b.mover_aliens();
+    aliens_b.hitbox_aliens(n); 
+    aliens_c.mover_aliens();
+    aliens_c.hitbox_aliens(n);
+    aliens_d.mover_aliens();
+    aliens_d.hitbox_aliens(n); 
+    aliens_e.mover_aliens();
+    aliens_e.hitbox_aliens(n);
+    aliens_f.mover_aliens();
+    aliens_f.hitbox_aliens(n); 
+    aliens_g.mover_aliens();
+    aliens_g.hitbox_aliens(n);
+
+    if (n.comb() == 0)
+	gameplay = true;
+	
+    n.explosao_nave();
+    n.mover_nave();
+    Sleep(30); // menos interações
+	}
+	
+	c.gotoxy(23, 10);	
+cout <<"________________________________________________________";
+cout <<"/                                                       |";
+cout <<"|                GAME OVER!                             | ";
+cout <<"|_________              _______________________________/ ";
+cout <<"          |_         __/    ___---------__              ";
+cout <<"            |      _/      /              |_            ";
+cout <<"            |    /       /                 |             ";
+cout <<"             |  /       | _    _ |          |           ";
+cout <<"              | |       / / |  / | |          |         ";
+cout <<"             | |       || * || * ||           |          ";
+cout <<"             | |       ||_// \\_/ |           |          ";
+cout <<"             | |       |_| (||)   |_______|   |          ";
+cout <<"             | |         |  ||     | _  / /   |          ";
+cout <<"             | |         |_________|| |/ /   /           ";
+cout <<"             | |         |_|_|_|_|/|  _/___/            ";
+cout <<"             | |         |_|_|_|_||| |/ /               ";
+cout <<"             | |         |_|_|_|_|_|| |/ /              ";
+cout <<"             | |         |_|_|_|_|_|| |/ /              ";
+cout <<"             | |         |_|_|_|_|_|| |/ /              ";
+cout <<"             ------------|_|_|_|_|_|| |/ /              ";
+cout <<"             ------------|_|_|_|_|_|| |/ /              ";
+cout <<"                         |_|_|_|_|_|| |/ /              ";
+cout <<"                         ###########                    ";
+
+
+	
+} 
+
+
+void instrucao(){
+	
+	system("cls");
+	setlocale(LC_ALL, "portuguese");
+	
+cout<<"\n\n>>>>>>>>>>>>>>>>>>>>>>>>  ||INSTRUÇÕES||  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n";
+cout<<"\n ** Objetivo: Sobreviver o maximo possivel a uma horda de aliens." << endl;
+cout <<"\n--------------------------------------------------------------------------\n\n";
+
+cout<<"\n\n>>>>>>>>>>>>>>>>>>>>> ||TECLAS DE CONTROLE|| <<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n";
+cout << "\n ** Setas do teclado direcionam a nave tanto para a Esquerda e Direita\n" << endl;
+cout <<"\n---------------------------------------------------------------------------\n\n";
+cout<<"\n\nPressione qualquer tecla para voltar ao menu";
+	getch();
+}
+
+
+void apagar_menu(){
+	int x,y;
+	cordenadas a;
+	a.gotoxy(x,y);
+	a.gotoxy(25,5);
+		cout <<"                                \n"; 
+		a.gotoxy(25,6);
+		cout <<"                                 "; 
+		a.gotoxy(25,7);
+		cout <<"                                \n";
+		a.gotoxy(29,9);
+		cout <<"            ";
+		a.gotoxy(29,10);
+		cout<<"            ";	 
+		a.gotoxy(29,11);
+		cout <<"                  ";
+		a.gotoxy(29,16);
+		cout <<"            ";
+		cout <<"            ";
+}
+
+
+int main(){
+	int x,y;
+
+    cordenadas s;
+	s.gotoxy(x,y);
+	do{
+		system("cls");
+		s.gotoxy(25,5); 
+		cout <<"||||||||||||||||||||||||||||||||\n"; 
+		s.gotoxy(25,6); 
+		cout <<"|       | SPACE SHOOTER |      | "; 
+		s.gotoxy(25,7);  
+		cout <<"||||||||||||||||||||||||||||||||\n";
+		s.gotoxy(29,9);  
+		cout <<"* 1 - JOGAR	";
+		s.gotoxy(29,10); 
+		cout<<"* 2 - MANUAL";	 
+		s.gotoxy(29,11); 
+		cout <<"* 3 - SAIR DO JOGO";
+		s.gotoxy(29,16);
+		cout <<"Selecione:  ";
+		char op = getche();
+		
+
+		
+		if( op=='1') {
+		apagar_menu();
+		playy();
+		}
+		else if( op=='2')
+		instrucao();
+		else if( op=='3')
+		exit(0);
+		cout <<"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+	} while(1);
+	
+
+return 0;
+
+}
