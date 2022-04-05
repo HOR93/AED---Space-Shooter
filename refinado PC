@@ -5,6 +5,7 @@
 
 using namespace std;
 
+// terminal 80x50 para funcionar no tamanho correto
 typedef enum{BLACK,BLUE,GREEN,CYAN,RED,MAGENTA,BROWN,LIGHTGRAY,DARKGRAY,   /* nome das cores */
 LIGHTBLUE,LIGHTGREEN,LIGHTCYAN,LIGHTRED,LIGHTMAGENTA,YELLOW,WHITE} COLORS;
 /*  9         10         11        12        13         14    15 */
