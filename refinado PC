@@ -3,10 +3,6 @@
 #include <windows.h> // coordenadas
 
 
-// Projeto Computacional - Starbreaker - Space Shooter
-// Henrique Oliveira da Rocha - 202066910
-// Victor Augusto Araújo dias - 211027527
-
 using namespace std;
 
 typedef enum{BLACK,BLUE,GREEN,CYAN,RED,MAGENTA,BROWN,LIGHTGRAY,DARKGRAY,   /* nome das cores */
