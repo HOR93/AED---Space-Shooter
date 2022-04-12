@@ -621,6 +621,7 @@ cout <<"\n----------------------------------------------------------------------
 
 cout<<"\n\n>>>>>>>>>>>>>>>>>>>>> ||TECLAS DE CONTROLE|| <<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n";
 cout << "\n ** Setas do teclado direcionam a nave tanto para a Esquerda e Direita\n" << endl;
+cout << "\n ** Tecla >> W << para atirar!                                         \n" << endl;
 cout <<"\n---------------------------------------------------------------------------\n\n";
 cout<<"\n\nPressione qualquer tecla para voltar ao menu";
 
