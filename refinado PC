@@ -1,11 +1,15 @@
 #include <iostream>
 #include <conio.h> // biblioteca para funções de controle na tela do terminal
 #include <windows.h> // coordenadas
-
+#include <vector>
+#include <list>
+#include <fstream>
 
 using namespace std;
 
+
 // terminal 80x50 para funcionar no tamanho correto
+/*             0     1    2     3   4      5      6      7         8  */
 typedef enum{BLACK,BLUE,GREEN,CYAN,RED,MAGENTA,BROWN,LIGHTGRAY,DARKGRAY,   /* nome das cores */
 LIGHTBLUE,LIGHTGREEN,LIGHTCYAN,LIGHTRED,LIGHTMAGENTA,YELLOW,WHITE} COLORS;
 /*  9         10         11        12        13         14    15 */
@@ -175,13 +179,13 @@ void nave::movimento_nave(){
 void nave::criar_vida(){
 	int i;
 	textcolor(13,0);
-	gotoxy(3, 2);
-	cout <<"||Combustivel: " << combustivel << endl; //32 em baixo
+	gotoxy(1, 2);
+	cout <<" |Combustivel da nave: " << combustivel << endl; //32 em baixo
 	textcolor(9,16);
-	gotoxy(16, 0); 
-	cout <<"   >>>>>>>>>>>>|| STARBREAKER ||<<<<<<<<<<<<"<< endl;
+	gotoxy(25, 2); 
+	cout <<"  >>>|| STARBREAKER ||<<<"<< endl;
 	textcolor(13,0);
-	gotoxy(62, 2); 
+	gotoxy(63, 2); 
 	cout << "Energia:  " << endl; // inserir coração no topo da tela
 	gotoxy(70, 2); 
 	cout << "      ";
@@ -205,6 +209,12 @@ void nave::explosao_nave(){
 		gotoxy(x,y+2); 
 		cout <<">> > * ## ## #";
 		Sleep(100);
+		gotoxy(x,y); 
+		cout <<"                       ";
+		gotoxy(x,y+1); 
+		cout <<"                               ";
+		gotoxy(x,y+2); 
+		cout <<"               ";
 		
 		excluir_nave();
 		gotoxy(x,y); 
@@ -214,6 +224,12 @@ void nave::explosao_nave(){
 		gotoxy(x,y+2); 
 		cout <<"              ";
 		Sleep(100);
+		gotoxy(x,y); 
+		cout <<"                       ";
+		gotoxy(x,y+1); 
+		cout <<"                               ";
+		gotoxy(x,y+2); 
+		cout <<"               ";
 		excluir_nave();
 		combustivel--;
 		coracao = 3; // reseta e volta para 3 mais uma vez
@@ -222,78 +238,146 @@ void nave::explosao_nave(){
 	}
 }
 
+
 class aliens: public cordenadas { // classe para os aliens
-    private:
+cordenadas c;
 	int x,y;
-	
 	public:
 		
-	aliens(int nv_x, int nv_y){
-		x = nv_x;
-		y = nv_y;
+	aliens(int n_x, int n_y){
+		x = n_x;
+		y = n_y;
 	}
+	
+		
+		
 		
 	void criar_aliens();
 	void mover_aliens();
-	void hitbox_aliens(nave &nv); // passando como parametro nave N, modificando os valores
+	void hitbox_aliens(nave &n); // passando como parametro nave N, modificando os valores
 	
-	void set_ax(int nv_x){
-		x = nv_x;
+	void set_ax(int n_x){
+		x = n_x;
 	}
-	int X( ){ // chamando para as cordenadas X
+	int X_a(){ // chamando para as cordenadas X
 		return x;
 	}
-	void set_ay(int nv_y){
-		y = nv_y;
+	void set_ay(int n_y){
+		y = n_y;
 	}
-	int Y( ){ // chamando para as cordenadas Y
+	int Y_a(){ // chamando para as cordenadas Y
 		return y;
 	}
+	
+	
+void apagar_aliens(){
+	gotoxy(x,y);
+	cout << " " ;
+
+
+}
+	
+	
 };
 
 void aliens::criar_aliens(){
 	gotoxy(x,y);
-	textcolor(7,0);
-	cout << "" << char(245);
+	
+	   c.textcolor(4,0);
+
+	cout << "" << char(157);
 
 
 }
 void aliens::mover_aliens(){
 	gotoxy(x,y);
 	cout <<" ";
-
 	y++;
-	if(y>32){ // até onde vai cair
-		x = rand()%69 + 5; // aliens vai sair dentro de um limite entre direita e esquerda, e o +5 e pra evitar os aliens sair fora do padrão da tela
+	if(y>32){ // atÃ© onde vai cair
+		x = rand()%71 + 5; // aliens vai sair dentro de um limite entre direita e esquerda, e o +5 e pra evitar os aliens sair fora do padrÃ£o da tela
 		y = 4; // para ficar caindo na tela no limite cordenada 4 do terminal
 	}
 	criar_aliens();
 }
 
-void aliens::hitbox_aliens(nave &nv){ // pegando o parametro e passando com n.X
-	if (x >= nv.X() && x < nv.X()+6 && y >= nv.Y() && y<=nv.Y()+2){ // X= cordenadas nave, se x for maior ou igual a X da nave, +6 para o valor dos caracteres da nave
-		nv.coracao_decremento();    // para tirar coração                               
-		nv.excluir_nave();
-		nv.criando_nave();
-		nv.criar_vida();
-		x = rand()%69 + 4;
+void aliens::hitbox_aliens(nave &n){ // pegando o parametro e passando com n.X
+	if (x >= n.X() && x < n.X()+6 && y >= n.Y() && y<=n.Y()+2){ // X= cordenadas nave, se x for maior ou igual a X da nave, +6 para o valor dos caracteres da nave
+		n.coracao_decremento();    // para tirar coraÃ§Ã£o                               
+		n.excluir_nave();
+		n.criando_nave();
+		n.criar_vida();
+		x = rand()%71 + 4; // 71 + 4
 		y = 4;
 	}
 }
 
 
+class TIRO: public cordenadas {
+	int x, y;
+	cordenadas c;
+	public:
+	TIRO(int _x, int _y){
+		x = _x;
+		y = _y;
+	}
+		int X_t(){ // parametro para o hitbox
+		return x;
+	}
+		int Y_t(){ // parametro para o hitbox
+		return y;
+	}
+
+void atirar();
+bool limite();
+
+};
+void TIRO::atirar(){
+		   c.textcolor(9,0);
+
+	gotoxy(x,y) ; 	cout << " " ;
+	if(y>4 && y<32) {y--; // 32
+	gotoxy(x,y); cout<< char(215);
+	
+	}
+}
+
+
+bool TIRO::limite(){
+	if(y==4 && y==32){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+void instrucao();
 
 void playy(){
-int x,y;	
+int x,y;
+string nick;	
+fstream save;	
 cordenadas c;
 c.gotoxy(x,y);
 c.ocultar_cursor();
 c.limite_aresta();
 
+list<int> recorde;
+list <string > lista_jogo;
+
+cout << "                             Nome do piloto(a): ";
+cin >> nick;
+lista_jogo.push_back(nick);
+
 nave n(37,30, 5, 3); // passando a localização da nave, e outras variaveis da classe nave
 n.criando_nave();
 
-aliens aliens_a(10,4), aliens_b(15,8), aliens_c(18,6),  aliens_d(13,7), aliens_e(19,3); aliens aliens_f(23,9); aliens aliens_g(21,2); // aliens
+		vector <aliens> ovn;
+		for(int i=0; i<10 ; i++){
+			ovn.push_back(aliens(rand()%75 + 3, rand()%5 + 4));
+		}
+
+		vector <TIRO> balas;
+
 
 
    bool gameplay = false;
@@ -302,55 +386,102 @@ aliens aliens_a(10,4), aliens_b(15,8), aliens_c(18,6),  aliens_d(13,7), aliens_e
    c.textcolor(0,0);
    while (!gameplay){  // controlando caracteres no terminal enquanto for negada
    
-   
-   c.gotoxy(21,2); 
-   c.textcolor(6,0);
-   cout <<"||pontos: " << pontos;
  
-   c.gotoxy(49,2); 
-   c.textcolor(6,0);
-   cout <<"||level: " << level;
-   cout << endl;
-   cout << endl;
-   cout     <<"  |                              |-------------|"<< endl;
-   cout     <<"  |                           |-------------------|"<< endl;
-   cout     <<"  |                   |------------------------------------|"<< endl;
-   cout     <<"  |           |------------------------------------------------------|"<< endl;
-   cout     <<"  |      |--------------------------------------------------------------|"<< endl;
-   cout     <<"  |      |----|####|------------|####|------|####|------------|####|----|"<< endl;
-   cout     <<"  |      |----|####|------------|####|------|####|------------|####|----|"<< endl;
-   cout     <<"  |      |----|####|------------|####|------|####|------------|####|----|"<< endl;
-   cout     <<"  |          |----------------------------------------------------|"<< endl;
-   cout     <<"  |                    |------------------------------------|"<< endl;
-   cout     <<"  |                          |-------------------------|"<< endl;
-    cout << endl;
-    cout << endl;
-   cout     <<"  |         _____        _____                           __     __           "<< endl;
-   cout     <<"  |         |___|        |___|         ___    ___        ||     ()           "<< endl;
-   cout     <<"  |         |___|        |___|         |_|    |_|        ||     ()           "<< endl;
-   cout     <<"  |_________|   |________|   |_________| |____| |________||_____()___________"<< endl;
-   cout << endl;
-    cout << endl;
-   cout     <<"  |         _____                                   __        ________      "<< endl;
-   cout     <<"  |         |___|                 ___    ___        ||        ||____||      "<< endl;
-   cout     <<"  |         |___|                 |_|    |_|        ||        ||    ||      "<< endl;
-   cout     <<"  |_________|   |_________________| |____| |________||________||____||_______"<< endl;
    
+   cout << endl;
+   cout << endl;
+   c.textcolor(14,0);
+   c.gotoxy(32,6); 
+   cout<<"|-------------------|"<< endl;
+   c.gotoxy(23,7);
+   cout<<"|------------------------------------|"<< endl;
+   c.gotoxy(18,8);
+   cout<<"|-------------------------------------------------|"<< endl;
+   c.gotoxy(9,9);
+   cout<<"|--------------------------------------------------------------|"<< endl;
+   c.gotoxy(9,10);
+   cout<<"|----|####|------------|####|------|####|------------|####|----|"<< endl;
+   c.gotoxy(9,11);
+   cout<<"|----|####|------------|####|------|####|------------|####|----|"<< endl;
+   c.gotoxy(9,12);
+   cout<<"|----|####|------------|####|------|####|------------|####|----|"<< endl;
+   c.gotoxy(18,13);
+   cout<<"|-------------------------------------------------|"<< endl;
+   c.gotoxy(23,14);
+   cout<<"|------------------------------------|"<< endl;
+   c.gotoxy(32,15); 
+   cout <<"|-------| |--------|"<< endl;
+    cout << endl;
+    cout << endl;
+   c.gotoxy(3,18); 
+   cout     <<"       _____        _____                        __     __                "<< endl;
+   c.gotoxy(3,19);
+   cout     <<"       |___|        |___|         ___            ||     ()                "<< endl;
+   c.gotoxy(3,20);
+   cout     <<"       |___|        |___|         |_|            ||     ()                "<< endl;
+   c.gotoxy(3,21);
+   cout     <<"_______|   |________|   |_________| |____________||_____()________________"<< endl;
+   cout << endl;
+   cout << endl;
+   c.gotoxy(3,24);
+   cout     <<"     _____                                   __        ________           "<< endl;
+   c.gotoxy(3,25);
+   cout     <<"     |___|                 ___    ___        ||        ||____||           "<< endl;
+   c.gotoxy(3,26);
+   cout     <<"     |___|                 |_|    |_|        ||        ||    ||           "<< endl;
+   c.gotoxy(3,27);
+   cout     <<"_____|   |_________________| |____| |________||________||____||___________"<< endl;
+   
+   c.gotoxy(51,2); 
+   c.textcolor(13,0);
+   cout <<"||level: " << level;
+
+	if(kbhit())	{
+		char tecla = getch();
+		switch(tecla){
+			case 32:
+			balas.push_back(TIRO(n.X()+3, n.Y() - 1));
+			break;
+		}
+	
+	}
+	
+	
+	for(int i=0; i< ovn.size(); i++){
+		ovn[i].mover_aliens();
+		ovn[i].hitbox_aliens(n);
+	}
+   
+   	for(int i=0 ; i <balas.size(); i++){
+		balas[i].atirar();
+		if(balas[i].limite()){
+			balas.erase(balas.begin() + i);
+		}
+	}
+	  
+    for(int i=0; i< ovn.size(); i++){
+ 		for(int j=0 ; j <balas.size(); j++){
+			if(ovn[i].X_a() == balas[j].X_t() && (ovn[i].Y_a() == balas[j].Y_t() || ovn[i].Y_a()+1 == balas[j].Y_t() ) ){ // metodo de colisao( sobtrposiçao de objetos)
+					ovn.erase(ovn.begin() + i);
+					ovn.push_back(aliens(rand()%75 + 3, rand()%5 + 4));
+					pontos++;
+					level = pontos/10;
+				recorde.push_back(level);
+			}
+			
+		}
+	}
     
-    aliens_a.mover_aliens();
-    aliens_a.hitbox_aliens(n);  // pegando os metodos e botando no menu sobre aliens
-    aliens_b.mover_aliens();
-    aliens_b.hitbox_aliens(n); 
-    aliens_c.mover_aliens();
-    aliens_c.hitbox_aliens(n);
-    aliens_d.mover_aliens();
-    aliens_d.hitbox_aliens(n); 
-    aliens_e.mover_aliens();
-    aliens_e.hitbox_aliens(n);
-    aliens_f.mover_aliens();
-    aliens_f.hitbox_aliens(n); 
-    aliens_g.mover_aliens();
-    aliens_g.hitbox_aliens(n);
+   
+    c.gotoxy(19, 0);
+    save.open("save_ss.txt",ios::in); 
+   if (save.is_open()){
+      string tp;
+      while(getline(save, tp) && save >> recorde.back()){ 
+         cout <<"Recorde do ultimo Piloto: | " << tp << " | | " << recorde.back() << " | ";
+      }
+      save.close();
+   }
 
     if ( n.comb() == 0)
 	gameplay = true;
@@ -360,53 +491,42 @@ aliens aliens_a(10,4), aliens_b(15,8), aliens_c(18,6),  aliens_d(13,7), aliens_e
       
     
 	}
-	
-	c.gotoxy(23, 10);
-		
-cout <<"________________________________________________________";
-cout <<"/                                                       |";
-cout <<"|                GAME OVER!                             | ";
-cout <<"|_________              _______________________________/ ";
-cout <<"          |_         __/    ___---------__              ";
-cout <<"            |      _/      /              |_            ";
-cout <<"            |    /       /                 |             ";
-cout <<"             |  /       | _    _ |          |           ";
-cout <<"              | |       / / |  / | |          |         ";
-cout <<"             | |       || * || * ||           |          ";
-cout <<"             | |       ||_// \\_/ |           |          ";
-cout <<"             | |       |_| (||)   |_______|   |          ";
-cout <<"             | |         |  ||     | _  / /   |          ";
-cout <<"             | |         |_________|| |/ /   /           ";
-cout <<"             | |         |_|_|_|_|/|  _/___/            ";
-cout <<"             | |         |_|_|_|_||| |/ /               ";
-cout <<"             | |         |_|_|_|_|_|| |/ /              ";
-cout <<"             | |         |_|_|_|_|_|| |/ /              ";
-cout <<"             | |         |_|_|_|_|_|| |/ /              ";
-cout <<"             ------------|_|_|_|_|_|| |/ /              ";
-cout <<"             ------------|_|_|_|_|_|| |/ /              ";
-cout <<"                         |_|_|_|_|_|| |/ /              ";
-cout <<"                         ###########                    ";
-Sleep(30);
+		x=9; y=6;
+c.textcolor(4,15);	
+c.gotoxy(x, y);    cout <<" ________________________________________________________  ";
+c.gotoxy(x, y+1);  cout <<"/                                                       |  ";
+c.gotoxy(x, y+2);  cout <<"|                GAME OVER!                             |  ";
+c.gotoxy(x, y+3);  cout <<"|_________              _______________________________/   ";
+c.gotoxy(x, y+4);  cout <<"          |_         __/    ___---------__                 ";
+c.gotoxy(x, y+5);  cout <<"            |      _/      /              |_               ";
+c.gotoxy(x, y+6);  cout <<"            |    /       /                 |               ";
+c.gotoxy(x, y+7);  cout <<"             |  /       | _    _ |          |              ";
+c.gotoxy(x, y+8);  cout <<"             | |       / / |  / | |          |             ";
+c.gotoxy(x, y+9);  cout <<"             | |       || * || * ||           |            ";
+c.gotoxy(x, y+10); cout <<"             | |       ||_// \\_/ |            |            ";
+c.gotoxy(x, y+11); cout <<"             | |       |_| (||)   |_______|    |           ";
+c.gotoxy(x, y+12); cout <<"             | |         |  ||     | _  / /   |            ";
+c.gotoxy(x, y+13); cout <<"             | |         |_________|| |/ /   /             ";
+c.gotoxy(x, y+14); cout <<"             | |         |_|_|_|_|/|  _/___/               ";
+c.gotoxy(x, y+15); cout <<"             | |         |_|_|_|_||| |/ /                  ";
+c.gotoxy(x, y+16); cout <<"             | |         |_|_|_|_|_|| |/ /                 ";
+c.gotoxy(x, y+17); cout <<"             | |         |_|_|_|_|_|| |/ /                 ";
+c.gotoxy(x, y+18); cout <<"             | |         |_|_|_|_|_|| |/ /                 ";
+c.gotoxy(x, y+19); cout <<"             ------------|_|_|_|_|_|| |/ /                 ";
+c.gotoxy(x, y+20); cout <<"             ------------|_|_|_|_|_|| |/ /                 ";
+c.gotoxy(x, y+21); cout <<"                         |_|_|_|_|_|| |/ /                 ";
+c.gotoxy(x, y+22); cout <<"                         ###########                       ";
 
+ Sleep(3000);
+
+save.open("save_ss.txt", ios::in | ios::app);
+
+				save << lista_jogo.front() << "\n";
+				save << recorde.back() << "\n";
+				
+				save.close();
 	
 } 
-
-
-void instrucao(){
-	
-	system("cls");
-	setlocale(LC_ALL, "portuguese");
-	
-cout<<"\n\n>>>>>>>>>>>>>>>>>>>>>>>>  ||INSTRUÇÕES||  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n";
-cout<<"\n ** Objetivo: Sobreviver o maximo possivel a uma horda de aliens." << endl;
-cout <<"\n--------------------------------------------------------------------------\n\n";
-
-cout<<"\n\n>>>>>>>>>>>>>>>>>>>>> ||TECLAS DE CONTROLE|| <<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n";
-cout << "\n ** Setas do teclado direcionam a nave tanto para a Esquerda e Direita\n" << endl;
-cout <<"\n---------------------------------------------------------------------------\n\n";
-cout<<"\n\nPressione qualquer tecla para voltar ao menu";
-	getch();
-}
 
 
 void apagar_menu(){
@@ -444,8 +564,8 @@ int main(){
     cordenadas s;
 	s.gotoxy(x,y);
 	do{
-		system("cls");
 		s.textcolor(9,16);
+		system("cls");
 		s.gotoxy(13,5);cout <<"±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±"; 
 		s.gotoxy(13,6);cout <<"±    _____                    _____ _           _            ±";
 		s.gotoxy(13,7);cout <<"±   |   __|___ ___ ___ ___   |   __| |_ ___ ___| |_ ___ ___  ±";
@@ -474,14 +594,36 @@ int main(){
 		apagar_menu();
 		playy();
 		}
-		else if( op=='2')
+		else if( op=='2'){
 		instrucao();
+	}
 		else if( op=='3')
 		exit(0);
 		cout <<"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
-	} while(1);
+	} while(2);
 	
 
 return 0;
+
+}
+
+
+
+
+void instrucao(){
+	char ch;
+	system("cls");
+
+	
+cout<<"\n\n>>>>>>>>>>>>>>>>>>>>>>>>  ||INSTRUÇÕES||  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n";
+cout<<"\n ** Objetivo: Sobreviver o maximo possivel a uma horda de aliens." << endl;
+cout <<"\n--------------------------------------------------------------------------\n\n";
+
+cout<<"\n\n>>>>>>>>>>>>>>>>>>>>> ||TECLAS DE CONTROLE|| <<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n";
+cout << "\n ** Setas do teclado direcionam a nave tanto para a Esquerda e Direita\n" << endl;
+cout <<"\n---------------------------------------------------------------------------\n\n";
+cout<<"\n\nPressione qualquer tecla para voltar ao menu";
+
+	getch();
 
 }
