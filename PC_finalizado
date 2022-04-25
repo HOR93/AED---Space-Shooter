@@ -4,7 +4,7 @@
 #include <vector>
 #include <list> // listar os jogadores
 #include <string>
-#include <set> // gravar sessao de jogadores
+#include <set>
 #include <fstream> // para gravar o save
 
 
@@ -651,30 +651,30 @@ cout<<"\n\n>>>>>>>>>>>  || Procure seu nome ou recorde nesta SESSAO! ||  <<<<<<<
 				cout << "O Piloto(a) " << nick << " encontrado" << endl;
 			}
 			else{
-				cout << "O " << nick << " não esta nessa sessao" << endl;
+				cout << "O Piloto(a) " << nick << " não esta nessa sessao" << endl;
 			  }  
     }
     if (m == 2){
       cout<<"\n\nDigite Seu Level: " << endl;
     cin >> level;
     if (level_jogador.find(level)!=level_jogador.end()){
-				cout << "O Piloto(a) " << level << " encontrado" << endl;
+				cout << "O Level " << level << " foi encontrado" << endl;
 			}
 			else{
-				cout << "O " << level << " não esta nessa sessao" << endl;
+				cout << "O Level" << level << " não esta nessa sessao" << endl;
 			  }  
     }if ( m == 3) {
             cout << "\nNomes ordenados: " << endl; // fazendo ordenação
             cout << endl;
 			for(set<string>::iterator it = nome.begin(); it!=nome.end(); it++){
-				cout << *it << "| |";
+				cout << *it << "  --->  ";
 			 }
             }
             if ( m == 4) {
             cout << "\nLevels ordenados: " << endl;    
 			cout << endl;
             for(set<int>::iterator it2 = level_jogador.begin(); it2!=level_jogador.end(); it2++){
-				cout << *it2 << "| |";
+				cout << *it2 << "  --->  ";
 			 }
             }
 
